@@ -1,3 +1,5 @@
+# mindsearch/agent/__init__.py
+
 import os
 from copy import deepcopy
 from datetime import datetime
@@ -5,7 +7,7 @@ from datetime import datetime
 from lagent.actions import AsyncWebBrowser, WebBrowser
 from lagent.agents.stream import get_plugin_prompt
 from lagent.prompts import InterpreterParser, PluginParser
-from lagent.utils import create_object
+from lagent.utils import create_object  # 导入 create_object 函数
 
 from . import models as llm_factory
 from .mindsearch_agent import AsyncMindSearchAgent, MindSearchAgent
@@ -21,9 +23,9 @@ from .mindsearch_prompt import (
     searcher_system_prompt_cn,
     searcher_system_prompt_en,
 )
+from .elasticsearch_search import ElasticsearchSearch  # 导入 Elasticsearch 搜索类
 
 LLM = {}
-
 
 def init_agent(
     lang="cn", model_format="internlm_server", search_engine="BingSearch", use_async=False
@@ -41,7 +43,7 @@ def init_agent(
                 else llm_cfg["type"].__name__
             )
             llm_cfg["type"] = f"lagent.llms.Async{cls_name}"
-        llm = create_object(llm_cfg)
+        llm = create_object(llm_cfg)  # 使用 create_object 函数
         LLM.setdefault(model_format, {}).setdefault(mode, llm)
 
     date = datetime.now().strftime("The current date is %Y-%m-%d.")
@@ -63,6 +65,18 @@ def init_agent(
             )
         )
     ]
+
+    # 如果搜索引擎是 Elasticsearch，则使用 ElasticsearchSearch 类
+    if search_engine == "Elasticsearch":
+        plugins = [
+            dict(
+                type=ElasticsearchSearch,
+                es_host=os.getenv("ELASTICSEARCH_HOST", "localhost"),
+                es_port=os.getenv("ELASTICSEARCH_PORT", "9200"),
+                es_index=os.getenv("ELASTICSEARCH_INDEX", "mindsearch_index"),
+            )
+        ]
+
     agent = (AsyncMindSearchAgent if use_async else MindSearchAgent)(
         llm=llm,
         template=date,

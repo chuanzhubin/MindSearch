@@ -10,7 +10,9 @@ ENV BING_API_KEY=${BING_API_KEY}
 ENV PATH=/opt/conda/bin:$PATH
 
 # 克隆git仓库
-RUN git clone -b lagent_v1.0 https://github.com/braisedpork1964/MindSearch.git /app
+#RUN git clone -b lagent_v1.0 https://github.com/braisedpork1964/MindSearch.git /app
+# 复制本地 mindsearch 目录到镜像的 /app 目录
+COPY . /app
 
 WORKDIR /app
 
@@ -24,4 +26,6 @@ EXPOSE 8000
 
 # 启动 FastAPI 服务
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "fastapi"]
-CMD ["python3", "-m", "mindsearch.app", "--asy", "--host", "0.0.0.0", "--port", "8002"]
+#python -m mindsearch.app --lang cn --model_format internlm_silicon --search_engine Elasticsearch
+#python -m mindsearch.app --lang cn --model_format internlm_silicon --search_engine DuckDuckGoSearch
+CMD ["python3", "-m", "mindsearch.app", "--lang", "cn", "--model_format", "internlm_silicon", "--search_engine", "DuckDuckGoSearch", "--host", "0.0.0.0", "--port", "8002"]

@@ -54,7 +54,7 @@ export default defineConfig({
     port: 8080,
     proxy: {
       "/solve": {
-        target: "",
+        target: "http://0.0.0.0:8002",
         changeOrigin: true,
       },
     },
